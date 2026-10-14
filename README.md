@@ -9,21 +9,35 @@
 
 # quantmathlab
 
-quantmathlab is a research library for quantitative finance, built paper by
-paper. Each paper is read, its mathematics is developed in LaTeX notes, and
-the methods it needs are implemented in the library as typed, tested code
-behind a small and consistent API, so that methods from different papers can
-be composed and compared on the same data.
+I figured that instead of waiting for someone to invite me onto a research
+team, I might as well start doing research myself. I enjoy reading academic
+papers, and at some point I decided to start turning ideas on paper into
+experiments. I began implementing them, testing their assumptions, and
+occasionally discovering that reproducing a paper is a lot harder than reading
+one.That's how `quantmathlab` came about.
 
-Go to the research folder to check stuff.
+`quantmathlab` is a personal research lab for quantitative finance, built
+one paper at a time. Each paper gets its mathematics worked through and
+documented in LaTeX, while the methods are implemented as typed, tested
+Python code. The goal is to gradually build a reusable library with a
+consistent API, making it easier to combine and compare ideas from different
+papers on the same data.
 
-Latest update: latest study
+Curious about what I have been working on? Head over to the
+[research folder](https://github.com/aleexarias/quantmathlab/tree/main/research):
+every paper has its own folder with a short summary, my LaTeX notes working
+through the mathematics, and a notebook with the experiments.
+
+> [!NOTE]
+> **Latest update:**
+> [Placeholder Paper](https://github.com/aleexarias/quantmathlab/tree/main/research/placeholder),
+> the testing paper used to set up the research workflow.
 
 ## Repository Layout
 
 | Path | Contents |
 | --- | --- |
-| [src/quantmathlab/](src/quantmathlab/) | The library |
+| [src/quantmathlab/](src/quantmathlab/) | The Python package |
 | [research/](research/) | One folder per paper: documentation page, LaTeX notes, notebook |
 | [tests/](tests/) | Unit and property-based tests for the library |
 | [examples/](examples/) | Gallery examples of the library's API |
