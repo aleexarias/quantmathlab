@@ -1,0 +1,108 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quantmathlab"
+dynamic = ["version"]
+description = "A research library for quantitative finance"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Alejandro Arias Gomez", email = "aleexariasg@gmail.com"},
+]
+keywords = [
+    "quantitative-finance",
+    "derivatives-pricing",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+
+dependencies = [
+    "numpy>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "hypothesis>=6.90",
+    "pytest-benchmark>=4.0",
+    "pytest-cov>=4.1",
+    "ruff>=0.1.0",
+    "mypy>=1.7",
+    "pre-commit>=3.5",
+]
+docs = [
+    "sphinx>=7.2",
+    "pydata-sphinx-theme>=0.14",
+    "sphinx-gallery>=0.14",
+    "matplotlib>=3.8",
+    "sphinxcontrib-bibtex>=2.6",
+]
+
+[project.urls]
+Documentation = "https://github.com/aleexarias/quantmathlab/tree/main/docs"
+Repository = "https://github.com/aleexarias/quantmathlab"
+Issues = "https://github.com/aleexarias/quantmathlab/issues"
+
+[tool.hatch.version]
+path = "src/quantmathlab/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/quantmathlab"]
+
+[tool.ruff]
+line-length = 79
+target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "PT"]
+# N803/N806/N813: allow mathematical variable names (S, K, T, etc.)
+ignore = ["N803", "N806", "N813"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["quantmathlab"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_unimported = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "--strict-markers -v --tb=short"
+testpaths = ["tests"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+
+[tool.coverage.run]
+source = ["quantmathlab"]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "^\\s*@abstractmethod",
+]

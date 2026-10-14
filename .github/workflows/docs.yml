@@ -1,0 +1,36 @@
+name: Docs
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install LaTeX for the research notes
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends latexmk \
+            texlive-latex-recommended texlive-fonts-recommended
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[docs]"
+
+      - name: Build docs
+        run: |
+          cd docs
+          make clean
+          make html SPHINXOPTS="-W --keep-going"
