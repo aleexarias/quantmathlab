@@ -7,8 +7,21 @@ implemented in the library as typed, tested code behind a small and
 consistent API, so that methods from different papers can be composed and
 compared on the same data.
 
+.. image:: _static/logo_light_full.svg
+   :class: only-light
+   :align: center
+   :width: 200px
+   :alt: quantmathlab logo
+
+.. image:: _static/logo_dark_full.svg
+   :class: only-dark
+   :align: center
+   :width: 200px
+   :alt: quantmathlab logo
+
 .. toctree::
    :maxdepth: 1
+   :hidden:
 
    installation
    research/index

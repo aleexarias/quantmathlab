@@ -1,3 +1,12 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)"
+            srcset="https://raw.githubusercontent.com/aleexarias/quantmathlab/main/docs/_static/logo_dark_full.svg">
+    <img src="https://raw.githubusercontent.com/aleexarias/quantmathlab/main/docs/_static/logo_light_full.svg"
+         alt="quantmathlab" width="200">
+  </picture>
+</p>
+
 # quantmathlab
 
 quantmathlab is a research library for quantitative finance, built paper by
