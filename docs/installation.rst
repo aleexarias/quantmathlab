@@ -6,6 +6,7 @@ Requirements
 
 - Python 3.12+
 - NumPy >= 2.0
+- A C++17 compiler, to build the C++ kernels
 
 Installation from Source
 -------------------------
@@ -19,6 +20,11 @@ in editable mode:
    git clone https://github.com/aleexarias/quantmathlab.git
    cd quantmathlab
    pip install -e .
+
+Installing compiles the package's C++ kernels, so you also need a C++17
+compiler: GCC or Clang on Linux, the Xcode Command Line Tools on macOS, or
+Visual Studio's MSVC on Windows. CMake and pybind11 are fetched
+automatically during the build.
 
 Install with development and documentation dependencies. Building the
 documentation also compiles the LaTeX notes of the :doc:`research/index`

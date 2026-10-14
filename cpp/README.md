@@ -1,34 +1,50 @@
-# C++ Backend (Future)
+# C++ Backend
 
-This directory contains the C++ implementation of performance-critical
-kernels.
+Kernels written in C++17 and bound to Python with pybind11. Installing the
+package (scikit-build-core and CMake, configured in `pyproject.toml`)
+compiles them into the extension module `quantmathlab.backend._cpp`.
 
-## Plan
-
-Will use pybind
-
-1. Identify hot paths via profiling.
-2. Implement in C++17 using Eigen for linear algebra.
-3. Wrap with pybind11.
-4. Migrate build backend from `hatchling` to `scikit-build-core`.
-5. Add conditional compilation: if MSVC/gcc/clang + optional C++ extension
-   found, build the extension; otherwise fall back to pure Python via the
-   `backend` dispatch layer.
-
-## Structure (to be added)
+## Layout
 
 ```
 cpp/
-├── CMakeLists.txt
-├── src/
-│   ├── <kernel>/
-│   └── pybind11_bindings.cpp
-└── tests/
+├── CMakeLists.txt        # builds src/ into quantmathlab/backend/_cpp
+└── src/
+    ├── bindings.cpp      # pybind11 module exposing the kernels
+    ├── black_scholes.hpp
+    └── black_scholes.cpp
 ```
 
-## Not Yet Implemented
+## How kernels are used
 
-- Do not add code to this directory until performance profiling indicates
-  necessity.
-- All numerical algorithms have pure-Python reference implementations in
-  `quantmathlab/`.
+Kernels compute; they do not validate. Each is a plain C++ function on
+scalars, exposed with `py::vectorize` so that it broadcasts over NumPy
+arrays. The public function in its subpackage of `src/quantmathlab/`
+checks the inputs and then calls the kernel, as
+`quantmathlab.models.bs_call_price` does with `black_scholes_call`.
+
+Every kernel also has a readable NumPy version with the same signature in
+`src/quantmathlab/backend/_python.py`, and the tests check that both agree.
+
+## Adding a kernel
+
+1. Write the function in `src/<name>.cpp`, declare it in `src/<name>.hpp`,
+   and add the `.cpp` file to `pybind11_add_module` in `CMakeLists.txt`.
+2. Expose it in `src/bindings.cpp`.
+3. Declare its signature in `src/quantmathlab/backend/_cpp.pyi`, so that
+   `mypy --strict` can check the code calling it.
+4. Write the NumPy version in `src/quantmathlab/backend/_python.py`.
+5. Call it from the public function, and test that the C++ and NumPy
+   versions agree.
+
+## Rebuilding
+
+The editable install picks up changes to Python files immediately, but
+changes to C++ files only take effect after rebuilding:
+
+```bash
+pip install -e ".[dev,docs]"
+```
+
+Build files are cached in `build/`, so rebuilds only recompile what
+changed.

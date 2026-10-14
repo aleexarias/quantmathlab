@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling>=1.27"]
-build-backend = "hatchling.build"
+requires = ["scikit-build-core>=0.11", "pybind11>=2.13"]
+build-backend = "scikit_build_core.build"
 
 [project]
 name = "quantmathlab"
@@ -52,11 +52,15 @@ Documentation = "https://quantmathlab.readthedocs.io/"
 Repository = "https://github.com/aleexarias/quantmathlab"
 Issues = "https://github.com/aleexarias/quantmathlab/issues"
 
-[tool.hatch.version]
-path = "src/quantmathlab/__init__.py"
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+build-dir = "build/{wheel_tag}"
+cmake.source-dir = "cpp"
+wheel.packages = ["src/quantmathlab"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/quantmathlab"]
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.regex"
+input = "src/quantmathlab/__init__.py"
 
 [tool.ruff]
 line-length = 79

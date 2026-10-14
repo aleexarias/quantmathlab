@@ -6,8 +6,9 @@ import sys
 
 from sphinx.application import Sphinx
 
-# Add source directory and local extensions to path
-sys.path.insert(0, os.path.abspath("../src"))
+# The package itself is not added to the path: it contains compiled C++
+# kernels that only exist in an installed copy, so the documentation is
+# built against the installed package.
 sys.path.insert(0, os.path.abspath("_ext"))
 
 from quantmathlab import __version__  # noqa: E402
