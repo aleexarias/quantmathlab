@@ -1,0 +1,9 @@
+{# Local and CI builds show the branch they were built from where the hosted
+   docs have the version switcher. It is a button only to share the
+   switcher's styling, so it ignores clicks and keyboard focus.
+   `docs_branch` is set in conf.py. #}
+<div class="version-switcher__container">
+  <button type="button" class="btn version-switcher__button pe-none"
+          tabindex="-1" aria-disabled="true"
+          title="Built from this branch">{{ docs_branch }}</button>
+</div>

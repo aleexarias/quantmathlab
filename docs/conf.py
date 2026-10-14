@@ -1,13 +1,47 @@
 """Sphinx configuration for quantmathlab documentation."""
 
 import os
+import subprocess
 import sys
+
+from sphinx.application import Sphinx
 
 # Add source directory and local extensions to path
 sys.path.insert(0, os.path.abspath("../src"))
 sys.path.insert(0, os.path.abspath("_ext"))
 
 from quantmathlab import __version__  # noqa: E402
+
+
+def _docs_branch() -> str:
+    """Return the git branch these docs are built from.
+
+    Read the Docs and GitHub Actions check out a detached commit, so their
+    environment variables name the branch; local builds ask git.
+    """
+    for variable in (
+        "READTHEDOCS_GIT_IDENTIFIER",
+        "GITHUB_HEAD_REF",
+        "GITHUB_REF_NAME",
+    ):
+        if os.environ.get(variable):
+            return os.environ[variable]
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+    return result.stdout.strip()
+
+
+docs_branch = _docs_branch()
+# Read the Docs hosts every branch, so only there can the version switcher
+# link between them; elsewhere the navbar just names the branch.
+on_read_the_docs = os.environ.get("READTHEDOCS") == "True"
 
 project = "quantmathlab"
 copyright = "2026, Alejandro Arias Gomez"
@@ -74,10 +108,27 @@ html_theme_options = {
         "alt_text": "quantmathlab - Home",
     },
     "show_nav_level": 2,
+    # _templates/branch.html shows the branch these docs come from.
+    "navbar_start": ["navbar-logo", "branch"],
     # _templates/version.html renders `release` into the footer of every page.
     "footer_start": ["version", "copyright"],
     "footer_end": ["last-updated"],
 }
+
+if on_read_the_docs:
+    # The switcher shows the branch these docs come from and links to the
+    # other branches' docs listed in _static/switcher.json. The path is
+    # relative, so every hosted branch reads its own copy of the file.
+    html_theme_options |= {
+        "switcher": {
+            "json_url": "_static/switcher.json",
+            "version_match": docs_branch,
+        },
+        "navbar_start": ["navbar-logo", "version-switcher"],
+        "show_version_warning_banner": True,
+    }
+
+html_context = {"docs_branch": docs_branch}
 
 html_static_path = ["_static"]
 # Follows the browser's colour scheme, so it stays visible on light and dark
@@ -98,3 +149,13 @@ html_show_sphinx = False
 
 # Warnings
 suppress_warnings = ["app.add_config_value"]
+
+
+def setup(app: Sphinx) -> None:
+    # The theme words its warning banner from the version string, so builds
+    # of any branch other than main are marked as development versions;
+    # otherwise the banner names the same release number as the stable docs.
+    if on_read_the_docs and docs_branch != "main":
+        app.add_js_file(
+            None, body=f"DOCUMENTATION_OPTIONS.VERSION = '{release}.dev';"
+        )

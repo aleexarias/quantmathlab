@@ -1,0 +1,13 @@
+[
+  {
+    "name": "main (stable)",
+    "version": "main",
+    "url": "https://quantmathlab.readthedocs.io/en/main/",
+    "preferred": true
+  },
+  {
+    "name": "develop",
+    "version": "develop",
+    "url": "https://quantmathlab.readthedocs.io/en/develop/"
+  }
+]
