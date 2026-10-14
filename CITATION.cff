@@ -14,10 +14,6 @@ abstract: |
   compared on the same data.
 keywords:
   - quantitative-finance
-  - options
   - derivatives-pricing
-  - volatility-surface
-  - density-estimation
-  - risk-neutral
 license: BSD-3-Clause
 version: 0.1.0

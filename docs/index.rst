@@ -1,11 +1,12 @@
-quantmathlab: A Research Library for Quantitative Finance
-=========================================================
+quantmathlab
+============
 
-**quantmathlab** is built paper by paper. Each paper is read, its
-mathematics is developed in LaTeX notes, and the methods it needs are
-implemented in the library as typed, tested code behind a small and
-consistent API, so that methods from different papers can be composed and
-compared on the same data.
+I figured that instead of waiting for someone to invite me onto a research
+team, I might as well start doing research myself. I enjoy reading academic
+papers, and at some point I decided to start turning ideas on paper into
+experiments. I began implementing them, testing their assumptions, and
+occasionally discovering that reproducing a paper is a lot harder than reading
+one.That's how ``quantmathlab`` came about.
 
 .. image:: _static/logo_light_full.svg
    :class: only-light
@@ -19,6 +20,27 @@ compared on the same data.
    :width: 200px
    :alt: quantmathlab logo
 
+``quantmathlab`` is a personal research lab for quantitative finance, built
+one paper at a time. Each paper gets its mathematics worked through and
+documented in LaTeX, while the methods are implemented as typed, tested
+Python code. The goal is to gradually build a reusable library with a
+consistent API, making it easier to combine and compare ideas from different
+papers on the same data.
+
+Curious about what I have been working on? Head over to the
+:doc:`research/index` section: every paper has its own page with a short
+summary, my LaTeX notes working through the mathematics, and a notebook with
+the experiments.
+
+I'm always open to suggestions, and I'd especially love to hear about papers
+you think I should take on next. Send them my way at
+aleexariasg@gmail.com.
+
+.. admonition:: Latest update
+
+   :doc:`Placeholder Paper <research/placeholder/index>`, the testing paper
+   used to set up the research workflow.
+
 .. toctree::
    :maxdepth: 1
    :hidden:
@@ -31,18 +53,11 @@ compared on the same data.
    development
    contributors
 
-Research
---------
-
-The :doc:`research/index` section has one entry per paper, each with a
-documentation page, the compiled LaTeX notes and an executed notebook.
-
-Package Layout
+Library Layout
 --------------
 
-Each subpackage is an extension point. New methods land in the subpackage
-whose role they fit, and new families are added as new subpackages rather
-than as changes to existing ones.
+The library is organised in subpackages, each an extension point for one
+family of methods:
 
 .. list-table::
    :header-rows: 1
@@ -53,27 +68,56 @@ than as changes to existing ones.
    * - :doc:`modules/models`
      - Analytic and semi-analytic pricers
    * - :doc:`modules/datasets`
-     - Chain generation and loading
+     - Data loading and generation
    * - :doc:`modules/validation`
      - Quality assessment
+   * - ``quantmathlab.viz``
+     - Plotting helpers
+   * - ``quantmathlab.backend``
+     - Kernel dispatch
 
-About
+Research Workflow
+-----------------
+
+Every paper gets a folder ``research/<slug>/`` with a documentation page
+(``README.rst``), notes with the derivations (``latex/main.tex``) and a
+notebook with the numerical experiments (``<slug>.py``). The documentation
+lists the papers in its Research section, where each one shows its page,
+the compiled notes and the executed notebook.
+
+The :doc:`development` describes how to add a paper.
+
+Installation
+------------
+
+The :doc:`installation` page covers setting up an environment, installing
+the package, the LaTeX distribution the documentation build needs, and the
+git hooks for development.
+
+Scope
 -----
 
-**Version**: |release| (this documentation is built from the installed package,
-so it always describes the version shown here and in the page footer)
+**quantmathlab is a research library.** It is intended for academic work,
+method development, backtesting, and validating numerical implementations
+against references.
 
-**Author**: Alejandro Arias Gomez
+**It is not a trading system.** It does not provide real-time pricing, order
+management, or execution.
 
-**License**: BSD-3-Clause
+Extending quantmathlab
+----------------------
 
-**Repository**: https://github.com/aleexarias/quantmathlab
+Every new addition to the library must be:
 
-**Documentation**: not hosted yet; build it from the repository with
-``cd docs && make html`` (see :doc:`installation`).
+1. Placed in the subpackage of ``src/quantmathlab/`` whose role it fits.
+2. Documented, with docstrings and on its API page in ``docs/modules/``.
+3. Tested.
+4. Preferably shown in an example in ``examples/``.
 
-Citing quantmathlab
--------------------
+The :doc:`development` has the full workflow and project conventions.
+
+Citation
+--------
 
 If you use quantmathlab in published research, please cite:
 
@@ -85,6 +129,19 @@ If you use quantmathlab in published research, please cite:
      year = {2026},
      url = {https://github.com/aleexarias/quantmathlab}
    }
+
+License
+-------
+
+BSD-3-Clause. See the
+`LICENSE <https://github.com/aleexarias/quantmathlab/blob/main/LICENSE>`__
+file.
+
+Contributing
+------------
+
+Contributions are welcome. See :doc:`contributors` and the
+:doc:`development`.
 
 Indices and tables
 ==================

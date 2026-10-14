@@ -23,7 +23,7 @@ Closes #(issue number, if applicable)
 - [ ] Code follows the project's style guidelines (`ruff check`, `ruff format`)
 - [ ] Type annotations complete (`mypy --strict` passes)
 - [ ] Docstrings added/updated (numpydoc format)
-- [ ] CHANGELOG.md updated (Conventional Commits format)
+- [ ] CHANGELOG.md updated
 - [ ] No new dependencies added (or discussed in description)
 
 ## Notes

@@ -1,30 +1,22 @@
 # Contributing to quantmathlab
 
-Thank you for your interest in contributing to quantmathlab! This document
+Thank you for your interest in contributing to `quantmathlab`! This document
 provides guidelines for contributing to the project.
 
-quantmathlab is built to accommodate many model families, not one. New pricers,
-surface fits and estimators are welcome contributions: because every fitted
-object shares the same `fit`/`predict` contract, a new implementation plugs
-into the existing pipelines and validation tooling without changes elsewhere.
-See "Adding Code" below for the bar a new family has to clear.
+`quantmathlab` is built to accommodate many model families, not one, and new
+models and methods are welcome contributions. See "Adding Code" below for the
+bar a new addition has to clear.
 
 ## Design Principles
 
-Contributions should preserve the principles the library is built on;
-they are what let a new model family slot in without changes elsewhere.
+Contributions should preserve the principles the library is built on:
 
-- **A common estimator API.** Everything that is fitted to data follows the
-  same sklearn-like contract: `fit(data, **params) -> self`, then
-  `predict(data) -> result`. Swapping one smoother, pricer, or estimator for
-  another is a one-line change.
 - **Arbitrage awareness.** Fitting routines that can enforce no-arbitrage
   constraints do so, and `quantmathlab.validation` provides independent
   checks so that any output can be audited.
 - **Reference implementations first.** Every algorithm exists as readable,
   vectorized NumPy/SciPy. `quantmathlab.backend` is a dispatch layer so that
-  accelerated C++ kernels can be introduced later without changing any public
-  API.
+  accelerated C++ kernels can be introduced without changing any public API.
 - **Typed and tested.** `mypy --strict` passes over the whole source tree, and
   every numerical function has unit tests against reference values plus
   property-based tests for its invariants.
@@ -37,9 +29,9 @@ src/quantmathlab/        # the library
 ├── py.typed             # marks the package as typed
 ├── _typing.py           # FloatArray, BoolArray type aliases
 ├── backend/             # dispatch layer for future C++ kernels
-├── datasets/            # chain generation and loading
+├── datasets/            # data loading and generation
 ├── models/              # analytic and semi-analytic pricers
-├── validation/          # arbitrage checks and metrics
+├── validation/          # consistency checks and accuracy metrics
 └── viz/                 # plotting functions
 
 research/<slug>/         # one folder per paper, <slug> = its BibTeX key
@@ -50,23 +42,25 @@ research/<slug>/         # one folder per paper, <slug> = its BibTeX key
 tests/                   # pytest suite
 examples/                # sphinx-gallery examples of the API
 docs/                    # Sphinx sources; docs/_ext/ publishes research/
+cpp/                     # planned C++ kernels (only a README for now)
 ```
 
 ## Branch Model
 
 - **`main`**: Always releasable; protected with branch rules.
-- **`develop`**: Integration branch for features.
+- **`develop`**: Integration branch for features; protected with the same
+  branch rules.
 - **Feature/fix branches**: `feature/<name>`, `fix/<name>`, `docs/<name>`
   branched from `develop`, merged back via squash-merge PR.
 
 ## Branch Protection Rules (on GitHub)
 
-These rules are active on `main`:
+These rules are active on `main` and `develop`:
 
-1. Require a pull request before merging
+1. Require a pull request before merging.
 2. Require status checks to pass before merging: `lint`, `docs`, and the
-   six `test (<python>, <os>)` jobs (3.12, 3.13 × ubuntu/macos/windows)
-3. Require branches to be up to date before merging
+   six `test (<python>, <os>)` jobs (3.12, 3.13 × ubuntu/macos/windows).
+3. Require branches to be up to date before merging.
 
 Merged pull request branches are deleted automatically.
 
@@ -94,15 +88,13 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `perf`, `ci`, `chore`.
 
 Example:
 ```
-feat(models): implement Heston characteristic function
+feat(models): implement Black-Scholes pricer
 
-Add the little-trap formulation, which stays continuous for long
-maturities. Includes vectorized evaluation over frequency grids.
+Add vectorized call and put prices with put-call parity tests.
+Prices are checked against published reference values.
 
 Closes #42
 ```
-
-The changelog and version bumps will be keyed off these commits.
 
 ## Versioning
 
@@ -127,13 +119,19 @@ To bump the version:
 
 ## Release Process
 
+Releases are made by hand:
+
 1. Bump the version as above.
 2. Update `CHANGELOG.md` with a section for the new version.
-3. Create a git tag: `git tag v<version>`.
-4. Push the tag: `git push origin v<version>`.
-5. CI builds sdist + wheel and publishes to PyPI via trusted publishing.
+3. Create a git tag and push it: `git tag v<version>`, then
+   `git push origin v<version>`. The tag must match `__version__`.
+4. Build the sdist and wheel and upload them to PyPI:
 
-The tag must match `__version__`; nothing enforces this automatically yet.
+   ```bash
+   pip install build twine
+   python -m build
+   twine upload dist/*
+   ```
 
 ## Code Conventions
 
@@ -161,9 +159,6 @@ The tag must match `__version__`; nothing enforces this automatically yet.
   reStructuredText, config). `ruff format` wraps code; docstrings, comments
   and string literals are wrapped by hand, and `ruff check` enforces the
   limit (E501). Only URLs and Markdown table rows may run longer.
-- **No stubs.** A module that is not implemented yet holds only a docstring
-  saying what belongs there, never `NotImplementedError` or a module-level
-  `pass`.
 - **Few dependencies.** Stick to NumPy, SciPy, pandas and matplotlib, plus
   cvxpy for optimization. Discuss anything else in an issue first.
 
@@ -189,28 +184,15 @@ note on why they are reasonable.
 3. Add a property test (hypothesis) for its invariants, where applicable.
 4. Run the checks under "Running Tests and Checks".
 5. Add a CHANGELOG entry and document it on its `docs/modules/` page.
-
-### A new estimator family
-
-A new family is complete when it has:
-
-1. A base class in `quantmathlab/<module>/base.py`, if one does not exist
-   yet, with abstract `fit(data, **params)` returning `self`, abstract
-   `predict(data)` returning the result, `__repr__` and parameter storage.
-2. Subclasses in `quantmathlab/<module>/<name>.py`, with docstrings citing
-   their source papers.
-3. Unit tests (known input, known output), property tests (fitted objects
-   keep their invariants) and an integration test (the estimator reaches
-   its target accuracy in an end-to-end pipeline).
-4. One or more gallery examples in `examples/<n>_<topic>/plot_<name>.py`.
-5. An API documentation page in `docs/modules/`.
-6. A CHANGELOG entry.
+6. Preferably, add a gallery example in
+   `examples/<n>_<topic>/plot_<name>.py`.
 
 ### A research paper
 
-1. Copy `research/placeholder/` to `research/<slug>/`, with `<slug>` the
-   paper's BibTeX key, and rename the notebook to `<slug>.py`; notebook
-   names must be unique across papers.
+1. Create `research/<slug>/`, with `<slug>` the paper's BibTeX key,
+   holding a documentation page `README.rst`, the notes in
+   `latex/main.tex` and a notebook `<slug>.py`; notebook names must be
+   unique across papers.
 2. Add the paper to `docs/references.bib`.
 3. Implement what the paper needs in `src/quantmathlab/` as above, and use
    it from the notebook.
@@ -223,9 +205,19 @@ breaks one is fixed before merging. `research/README.md` has the details.
 
 ## Running Tests and Checks
 
+Set up as described under [Installation](README.md#installation) in the
+README: your own conda environment, the project installed with
+`pip install -e ".[dev,docs]"`, LaTeX for the documentation, and the git
+hooks. The hooks run the same checks as CI before your code leaves your
+machine: ruff and mypy on every commit, and the test suite on every push.
+Only the documentation build is left to CI.
+
 ```bash
-# Install dev dependencies
-pip install -e ".[dev]"
+# Install development and documentation dependencies
+pip install -e ".[dev,docs]"
+
+# Install the git hooks
+pre-commit install
 
 # Run linter
 ruff check src tests
@@ -258,7 +250,8 @@ Papers live in `research/<slug>/`, each with a documentation page, LaTeX
 notes and a notebook, and are published in the Research section of the
 documentation by `docs/_ext/research.py`. Every `.py` file directly inside
 a paper's folder is executed as a notebook. Building the documentation
-needs `latexmk` to compile the notes.
+needs the LaTeX installation from [Installation](README.md#installation)
+to compile the notes.
 
 In reStructuredText:
 
@@ -277,4 +270,5 @@ cd docs && make html
 
 ## Questions?
 
-Open an issue on GitHub.
+Open an issue on GitHub or email
+[aleexariasg@gmail.com](mailto:aleexariasg@gmail.com).

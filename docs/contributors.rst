@@ -22,12 +22,8 @@ quantmathlab welcomes contributions in many forms:
 - **Testing**: unit tests, property tests, edge case discovery
 - **Reviews**: code review, feedback on designs
 
-New model families are especially welcome. Because every fitted object shares
-the same ``fit(data, **params) -> self`` / ``predict(data) -> result``
-contract, a new pricer, smoother or estimator plugs into the existing
-pipelines and validation tooling without changes elsewhere. See
-``CONTRIBUTING.md`` for the workflow and :doc:`development` for the quality
-bar.
+New model families are especially welcome. See ``CONTRIBUTING.md`` for the
+workflow and :doc:`development` for the quality bar.
 
 Citation
 --------

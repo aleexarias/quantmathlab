@@ -1,15 +1,20 @@
 Research
 ========
 
-The library grows paper by paper. Each paper studied for the project has a
-folder ``research/<slug>/`` in the repository with three parts:
+Welcome to the heart of ``quantmathlab``. This folder is my playground:
+everything else in the repository exists to serve what happens here.
 
-- a documentation page summarising the paper (``README.rst``),
-- notes with the derivations, written in LaTeX (``latex/main.tex``),
-- a notebook with the numerical experiments (``<slug>.py``).
+One folder per paper studied for the project. Reading a paper produces
+three things, and the documentation publishes all of them under its
+Research section. Each paper's folder ``research/<slug>/`` holds:
 
-Methods that come out of a paper are implemented in the library itself and
-documented in the :doc:`../modules/index`.
+- ``README.rst``: the documentation page summarising the paper
+- ``<slug>.py``: the notebook with the numerical experiments
+- ``latex/main.tex``: the notes with the derivations
+
+Methods a paper needs are implemented in ``src/quantmathlab/``, with tests,
+and used from its notebook. Results quoted in the notes come from the
+notebook, never typed in by hand.
 
 .. toctree::
    :maxdepth: 1

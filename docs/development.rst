@@ -6,17 +6,20 @@ This guide covers the development workflow for quantmathlab contributors.
 Branch Model
 ------------
 
-- **main**: Always releasable. Protected with required checks.
-- **develop**: Integration branch for features (optional staging).
-- **Feature branches**: `feature/<name>`, `fix/<name>`, `docs/<name>`.
-  Squash-merge back to main via PR.
+- **main**: Always releasable; protected with branch rules.
+- **develop**: Integration branch for features; protected with the same
+  branch rules.
+- **Feature/fix branches**: ``feature/<name>``, ``fix/<name>``,
+  ``docs/<name>`` branched from ``develop``, merged back via squash-merge
+  PR.
 
-All branches require:
+The branch rules apply to both ``main`` and ``develop``:
 
-- Tests (tests.yml passes)
-- Lint (ruff check passes)
-- Type checking (mypy --strict passes)
-- Docs build (docs.yml passes)
+1. Require a pull request before merging.
+2. Require status checks to pass before merging: ``lint`` (ruff and
+   mypy), ``docs`` (the documentation build), and the six
+   ``test (<python>, <os>)`` jobs (3.12, 3.13 × ubuntu/macos/windows).
+3. Require branches to be up to date before merging.
 
 Commit Convention
 -----------------
@@ -44,18 +47,29 @@ Example:
 
    Closes #42
 
-Changelog and version bumps are automated from these commits.
-
 Setting Up Development Environment
 -----------------------------------
 
-Clone and install with dev dependencies:
+Have your own conda environment (or any other virtual environment) with
+Python 3.12+ ready and activated, then clone the repository and install it
+with the development and documentation dependencies:
 
 .. code-block:: bash
 
    git clone https://github.com/aleexarias/quantmathlab.git
    cd quantmathlab
    pip install -e ".[dev,docs]"
+
+Building the documentation also needs LaTeX with ``latexmk``; see
+:doc:`installation` for the command on each platform.
+
+If you are developing, also install the git hooks. They run the same
+checks as CI before your code leaves your machine: ruff and mypy on every
+commit, and the test suite on every push. Only the documentation build is
+left to CI.
+
+.. code-block:: bash
+
    pre-commit install
 
 Quality Checks
@@ -141,30 +155,79 @@ and every number quoted in the notes is produced by the notebook.
 API Documentation
 ------------------
 
-Write numpydoc docstrings on all public functions/classes:
+Write numpydoc docstrings on all public functions and classes. The example
+below, a Black-Scholes call pricer, uses every section the project relies
+on: a one-line summary, an extended description with inline and display
+mathematics and a citation, then ``Parameters``, ``Returns``, ``Raises``,
+``See Also``, ``Notes``, ``References`` and ``Examples``, in numpydoc's
+order. The docstring is a raw string (``r"""``) because the LaTeX contains
+backslashes, and the examples are executable, with outputs taken from
+running the code. Only the signature and docstring are shown.
 
 .. code-block:: python
 
-   def density_estimation(
-       chain: OptionChain, smoothness: float
-   ) -> RiskNeutralDensity:
-       """Extract risk-neutral density from option chain.
+   import numpy.typing as npt
 
-       Fits an arbitrage-free surface using constrained cubic splines,
-       then applies the formula of
-       :footcite:t:`breeden+litzenberger_1978_prices` to extract density.
+   from quantmathlab._typing import FloatArray
+
+
+   def bs_call_price(
+       spot: float,
+       strike: npt.ArrayLike,
+       maturity: float,
+       rate: float,
+       volatility: float,
+   ) -> FloatArray:
+       r"""Price European call options with the Black-Scholes formula.
+
+       Computes the price of a European call under the model of
+       :footcite:t:`black+scholes_1973_pricing`, in which the underlying
+       follows a geometric Brownian motion with constant volatility
+       :math:`\sigma` and the risk-free rate :math:`r` is constant:
+
+       .. math::
+
+          C = S\,\Phi(d_1) - K e^{-rT}\,\Phi(d_2),
+          \qquad
+          d_{1,2} = \frac{\ln(S/K) + \left(r \pm \tfrac{1}{2}\sigma^2\right) T}
+                         {\sigma\sqrt{T}},
+
+       where :math:`\Phi` is the standard normal distribution function.
 
        Parameters
        ----------
-       chain : OptionChain
-           Option chain with bid-ask quotes.
-       smoothness : float
-           Regularization parameter (higher = smoother surface).
+       spot : float
+           Current price of the underlying, :math:`S > 0`.
+       strike : array_like
+           Strike prices, :math:`K > 0`; a scalar or an array.
+       maturity : float
+           Time to expiry in years, :math:`T > 0`.
+       rate : float
+           Continuously compounded risk-free rate :math:`r`.
+       volatility : float
+           Annualized volatility of the underlying, :math:`\sigma > 0`.
 
        Returns
        -------
-       RiskNeutralDensity
-           Object with pdf(), cdf(), moments, etc.
+       FloatArray
+           Call prices, with the shape of ``strike``.
+
+       Raises
+       ------
+       ValueError
+           If ``spot``, ``maturity`` or ``volatility`` is not positive, or
+           if any strike is not positive.
+
+       See Also
+       --------
+       bs_put_price : Put prices under the same model.
+       implied_volatility : Recovers :math:`\sigma` from a quoted price.
+
+       Notes
+       -----
+       Prices satisfy put-call parity, :math:`C - P = S - K e^{-rT}`, and
+       decrease and are convex in the strike; the property-based tests check
+       both.
 
        References
        ----------
@@ -172,10 +235,15 @@ Write numpydoc docstrings on all public functions/classes:
 
        Examples
        --------
-       >>> from quantmathlab.datasets import synthetic_heston_chain
-       >>> chain = synthetic_heston_chain(T=0.5, n_strikes=40)
-       >>> density = density_estimation(chain, smoothness=0.001)
-       >>> print(density.mean())  # Should be ~forward price
+       A single at-the-money call:
+
+       >>> print(f"{bs_call_price(100.0, 100.0, 1.0, 0.05, 0.2):.4f}")
+       10.4506
+
+       Several strikes at once:
+
+       >>> bs_call_price(100.0, [90.0, 100.0, 110.0], 1.0, 0.05, 0.2).round(4)
+       array([16.6994, 10.4506,  6.0401])
        """
 
 Versioning
@@ -209,11 +277,19 @@ To bump the version:
 Release Process
 ---------------
 
-1. Bump the version as above
-2. Update CHANGELOG.md with version and changes
-3. Tag the release: ``git tag vX.Y.Z`` (must match ``__version__``)
-4. Push tag: ``git push origin vX.Y.Z``
-5. GitHub Actions builds and publishes to PyPI (via trusted publishing)
+Releases are made by hand:
+
+1. Bump the version as above.
+2. Update ``CHANGELOG.md`` with a section for the new version.
+3. Create a git tag and push it: ``git tag v<version>``, then
+   ``git push origin v<version>``. The tag must match ``__version__``.
+4. Build the sdist and wheel and upload them to PyPI:
+
+   .. code-block:: bash
+
+      pip install build twine
+      python -m build
+      twine upload dist/*
 
 Performance
 -----------

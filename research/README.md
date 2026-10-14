@@ -1,5 +1,8 @@
 # Research
 
+Welcome to the heart of `quantmathlab`. This folder is my playground:
+everything else in the repository exists to serve what happens here.
+
 One folder per paper studied for the project. Reading a paper produces
 three things, and the documentation publishes all of them under its
 Research section:
@@ -18,16 +21,41 @@ notebook, never typed in by hand.
 
 ## Adding a paper
 
-1. Copy `placeholder/` to `research/<slug>/`, where `<slug>` is the paper's
-   BibTeX key (`<surnames>_<year>_<word>`, e.g. `heston_1993_closed`).
-2. Rename the notebook to `<slug>.py`. Notebook names must be unique across
-   papers, or the documentation build fails.
-3. Add the paper to `docs/references.bib` so the documentation page can cite
-   it with `` :footcite:t:`<slug>` ``.
+Take Black and Scholes (1973), *The Pricing of Options and Corporate
+Liabilities*, as an example.
+
+1. Create the paper's folder, named after its BibTeX key
+   (`<surnames>_<year>_<word>`, with surnames joined by `+`):
+   `research/black+scholes_1973_pricing/`.
+2. Add the three parts described below, with the notebook named after the
+   folder. Notebook names must be unique across papers, or the
+   documentation build fails.
+
+   ```
+   research/black+scholes_1973_pricing/
+   ├── README.rst
+   ├── black+scholes_1973_pricing.py
+   └── latex/
+       └── main.tex
+   ```
+
+3. Add the paper to `docs/references.bib`, so the documentation page can
+   cite it with `` :footcite:t:`black+scholes_1973_pricing` ``:
+
+   ```bibtex
+   @article{black+scholes_1973_pricing,
+     author  = {Black, Fischer and Scholes, Myron},
+     title   = {The Pricing of Options and Corporate Liabilities},
+     journal = {Journal of Political Economy},
+     year    = {1973},
+     volume  = {81},
+     number  = {3},
+     pages   = {637--654},
+   }
+   ```
+
 4. Build the documentation (`cd docs && make html`) and open the paper under
    Research.
-
-Once the first real paper exists, delete `placeholder/`.
 
 ## The three parts
 

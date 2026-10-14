@@ -1,3 +1,3 @@
-"""Datasets: loading and generating synthetic option chains."""
+"""Datasets: loading market data and generating synthetic data."""
 
 __all__: list[str] = []

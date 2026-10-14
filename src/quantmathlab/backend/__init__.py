@@ -1,7 +1,1 @@
-"""Backend dispatch layer for C++ kernels.
-
-When C++ kernels are available, this module will dispatch to them
-transparently.
-"""
-
-from quantmathlab.backend._python import *  # noqa: F403, F401
+"""Backend: the compiled C++ kernels, built from ``cpp/``."""

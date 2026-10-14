@@ -10,7 +10,9 @@ Requirements
 Installation from Source
 -------------------------
 
-Clone the repository and install in development mode:
+Have your own conda environment (or any other virtual environment) with
+Python 3.12+ ready and activated, then clone the repository and install it
+in editable mode:
 
 .. code-block:: bash
 
@@ -34,6 +36,15 @@ package that pip cannot install, so add it alongside:
 On macOS install `MacTeX <https://www.tug.org/mactex/>`_, and on Windows
 `MiKTeX <https://miktex.org/>`_ or `TeX Live <https://tug.org/texlive/>`_;
 all of them include ``latexmk``.
+
+If you are developing, also install the git hooks. They run the same
+checks as CI before your code leaves your machine: ruff and mypy on every
+commit, and the test suite on every push. Only the documentation build is
+left to CI.
+
+.. code-block:: bash
+
+   pre-commit install
 
 Verify Installation
 -------------------

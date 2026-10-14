@@ -1,12 +1,3 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)"
-            srcset="https://raw.githubusercontent.com/aleexarias/quantmathlab/main/docs/_static/logo_dark_full.svg">
-    <img src="https://raw.githubusercontent.com/aleexarias/quantmathlab/main/docs/_static/logo_light_full.svg"
-         alt="quantmathlab" width="200">
-  </picture>
-</p>
-
 # quantmathlab
 
 I figured that instead of waiting for someone to invite me onto a research
@@ -15,6 +6,15 @@ papers, and at some point I decided to start turning ideas on paper into
 experiments. I began implementing them, testing their assumptions, and
 occasionally discovering that reproducing a paper is a lot harder than reading
 one.That's how `quantmathlab` came about.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)"
+            srcset="https://raw.githubusercontent.com/aleexarias/quantmathlab/main/docs/_static/logo_dark_full.svg">
+    <img src="https://raw.githubusercontent.com/aleexarias/quantmathlab/main/docs/_static/logo_light_full.svg"
+         alt="quantmathlab" width="200">
+  </picture>
+</p>
 
 `quantmathlab` is a personal research lab for quantitative finance, built
 one paper at a time. Each paper gets its mathematics worked through and
@@ -27,6 +27,10 @@ Curious about what I have been working on? Head over to the
 [research folder](https://github.com/aleexarias/quantmathlab/tree/main/research):
 every paper has its own folder with a short summary, my LaTeX notes working
 through the mathematics, and a notebook with the experiments.
+
+I'm always open to suggestions, and I'd especially love to hear about papers
+you think I should take on next. Send them my way at
+[aleexariasg@gmail.com](mailto:aleexariasg@gmail.com).
 
 > [!NOTE]
 > **Latest update:**
@@ -49,7 +53,7 @@ family of methods:
 | Subpackage | Role |
 | --- | --- |
 | `quantmathlab.models` | Analytic and semi-analytic pricers |
-| `quantmathlab.datasets` | Chain generation and loading |
+| `quantmathlab.datasets` | Data loading and generation |
 | `quantmathlab.validation` | Quality assessment |
 | `quantmathlab.viz` | Plotting helpers |
 | `quantmathlab.backend` | Kernel dispatch |
@@ -65,7 +69,9 @@ for how to add a paper.
 
 ## Installation
 
-Clone the repository and install in editable mode:
+Have your own conda environment (or any other virtual environment) with
+Python 3.12+ ready and activated, then clone the repository and install it
+in editable mode:
 
 ```bash
 git clone https://github.com/aleexarias/quantmathlab.git
@@ -73,13 +79,31 @@ cd quantmathlab
 pip install -e .
 ```
 
-With development and documentation dependencies:
+Install with development and documentation dependencies. Building the
+documentation also compiles the LaTeX notes of the research papers, which
+needs a TeX distribution with `latexmk`. It is a system package that pip
+cannot install, so add it alongside:
 
 ```bash
 pip install -e ".[dev,docs]"
+
+# LaTeX for the research notes (Debian/Ubuntu)
+sudo apt-get install latexmk texlive-latex-recommended \
+    texlive-fonts-recommended
 ```
 
-Requires Python 3.12 or newer.
+On macOS install [MacTeX](https://www.tug.org/mactex/), and on Windows
+[MiKTeX](https://miktex.org/) or [TeX Live](https://tug.org/texlive/); all
+of them include `latexmk`.
+
+If you are developing, also install the git hooks. They run the same
+checks as CI before your code leaves your machine: ruff and mypy on every
+commit, and the test suite on every push. Only the documentation build is
+left to CI.
+
+```bash
+pre-commit install
+```
 
 ## Documentation
 
@@ -89,13 +113,13 @@ The documentation is not hosted yet. Build it from this repository:
 pip install -e ".[docs]"
 cd docs
 make html
-# Open docs/_build/html/index.html in a browser
+# Open _build/html/index.html in a browser
 ```
 
 The build renders the API reference, the example gallery and the Research
-section. Compiling the research notes needs a LaTeX installation with
-`latexmk` (on Debian/Ubuntu: `latexmk texlive-latex-recommended
-texlive-fonts-recommended`).
+section. Compiling the research notes needs the LaTeX installation from
+[Installation](#installation). Without it the build still completes, but
+warns that the notes could not be compiled, and so fails under `-W`.
 
 ## Scope
 
@@ -108,16 +132,12 @@ management, or execution.
 
 ## Extending quantmathlab
 
-New model families are welcome. The pattern is:
+Every new addition to the library must be:
 
-1. Add or reuse a base class in `quantmathlab/<module>/base.py` defining the
-   `fit`/`predict` contract for that family.
-2. Implement the subclass in `quantmathlab/<module>/<name>.py` with
-   complete type hints and a numpydoc docstring citing its source paper.
-3. Add unit tests against a reference, property tests for its invariants,
-   and an integration test in the end-to-end pipeline.
-4. Add a gallery example, an API page under `docs/modules/`, and a CHANGELOG
-   entry.
+1. Placed in the subpackage of `src/quantmathlab/` whose role it fits.
+2. Documented, with docstrings and on its API page in `docs/modules/`.
+3. Tested.
+4. Preferably shown in an example in `examples/`.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow and project
 conventions.

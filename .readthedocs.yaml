@@ -10,7 +10,6 @@ build:
     - texlive-fonts-recommended
 
 python:
-  version: "3.12"
   install:
     - method: pip
       path: .
