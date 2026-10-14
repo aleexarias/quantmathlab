@@ -79,6 +79,11 @@ cd quantmathlab
 pip install -e .
 ```
 
+Installing compiles the package's C++ kernels, so you also need a C++17
+compiler: GCC or Clang on Linux, the Xcode Command Line Tools on macOS, or
+Visual Studio's MSVC on Windows. CMake and pybind11 are fetched
+automatically during the build.
+
 Install with development and documentation dependencies. Building the
 documentation also compiles the LaTeX notes of the research papers, which
 needs a TeX distribution with `latexmk`. It is a system package that pip

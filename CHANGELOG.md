@@ -6,6 +6,23 @@ The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] - 2026-10-14
+
+### Added
+
+- `quantmathlab.models.bs_call_price` and `bs_put_price`: Black-Scholes
+  prices of European options, broadcasting over all arguments, computed by
+  a C++ kernel.
+- C++ backend: kernels in `cpp/src/`, bound to Python with pybind11 as
+  `quantmathlab.backend._cpp`, with readable NumPy reference versions in
+  `quantmathlab.backend._python` that the tests compare against.
+
+### Changed
+
+- The package is built with scikit-build-core and CMake instead of
+  hatchling, so installing from source compiles the C++ kernels and needs a
+  C++17 compiler.
+
 ## [0.1.0] - 2026-10-14
 
 First release, version 0.1.0: the project setup. No methods are implemented
