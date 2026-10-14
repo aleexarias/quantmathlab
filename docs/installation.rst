@@ -70,7 +70,9 @@ Run the test suite:
 Build Documentation
 --------------------
 
-The documentation is not hosted yet, so build it from the repository:
+The documentation is hosted at https://quantmathlab.readthedocs.io/, with
+a version for each of the ``main`` and ``develop`` branches. To build it
+from the repository instead:
 
 .. code-block:: bash
 

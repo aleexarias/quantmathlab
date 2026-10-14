@@ -107,7 +107,10 @@ pre-commit install
 
 ## Documentation
 
-The documentation is not hosted yet. Build it from this repository:
+The documentation is hosted at
+[quantmathlab.readthedocs.io](https://quantmathlab.readthedocs.io/), with a
+version for each of the `main` and `develop` branches. To build it from this
+repository instead:
 
 ```bash
 pip install -e ".[docs]"

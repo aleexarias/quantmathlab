@@ -48,7 +48,7 @@ docs = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/aleexarias/quantmathlab/tree/main/docs"
+Documentation = "https://quantmathlab.readthedocs.io/"
 Repository = "https://github.com/aleexarias/quantmathlab"
 Issues = "https://github.com/aleexarias/quantmathlab/issues"
 
