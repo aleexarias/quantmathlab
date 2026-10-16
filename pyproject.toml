@@ -75,6 +75,10 @@ select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "PT"]
 # N803/N806/N813: allow mathematical variable names (S, K, T, etc.)
 ignore = ["N803", "N806", "N813"]
 
+[tool.ruff.lint.pep8-naming]
+# torch.nn.functional is conventionally imported as F.
+extend-ignore-names = ["F"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["quantmathlab"]
 
