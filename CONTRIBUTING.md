@@ -30,6 +30,7 @@ src/quantmathlab/        # the library
 ├── _typing.py           # FloatArray, BoolArray type aliases
 ├── backend/             # C++ kernels (_cpp) and NumPy references
 ├── datasets/            # data loading and generation
+├── features/            # indicators and model inputs
 ├── models/              # analytic and semi-analytic pricers
 ├── validation/          # consistency checks and accuracy metrics
 └── viz/                 # plotting functions
@@ -37,7 +38,9 @@ src/quantmathlab/        # the library
 research/<slug>/         # one folder per paper, <slug> = its BibTeX key
 ├── README.rst           # documentation page
 ├── <slug>.py            # notebook (sphinx-gallery format, # %% cells)
-└── latex/main.tex       # notes with the derivations
+├── latex/main.tex       # notes with the derivations
+├── training/            # optional: scripts too slow for the docs build
+└── results/             # optional: their output, read by the notebook
 
 tests/                   # pytest suite
 examples/                # sphinx-gallery examples of the API
@@ -138,9 +141,12 @@ Releases are made by hand:
 - **Type hints everywhere.** `mypy --strict` must pass. No `Any` except in
   rare cases, justified with a comment.
 - **Docstrings.** numpydoc format on every public function and class: a
-  one-line summary, an extended description if needed, Parameters,
-  Returns and Raises sections, and an Examples section with executable
-  code.
+  one-line summary, an extended description if needed, and Parameters,
+  Returns and Raises sections. An Examples section with executable code
+  is added where it helps; small functions do without one.
+- **No arbitrary defaults.** A parameter gets a default value only when a
+  source justifies it, cited in the docstring. Otherwise the caller
+  chooses it.
 - **Citations.** Papers are never written out; they live in
   `docs/references.bib`. Docstrings cite them with `:footcite:t:` and end
   with a `References` section containing only `.. footbibliography::`;

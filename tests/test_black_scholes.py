@@ -22,6 +22,10 @@ volatilities = st.floats(0.01, 2.0)
 
 
 def test_textbook_values() -> None:
+    """Prices match the textbook values.
+
+    The example has S = K = 100, T = 1, r = 5% and sigma = 20%.
+    """
     call = bs_call_price(100.0, 100.0, 1.0, 0.05, 0.2)
     put = bs_put_price(100.0, 100.0, 1.0, 0.05, 0.2)
     assert float(call) == pytest.approx(10.4506, abs=5e-5)
@@ -32,6 +36,7 @@ def test_textbook_values() -> None:
 def test_cpp_kernels_match_python_reference(
     spot: float, ratio: float, maturity: float, rate: float, vol: float
 ) -> None:
+    """The C++ kernels agree with the NumPy reference versions."""
     args = [np.array([value]) for value in (spot, spot * ratio, maturity)]
     args += [np.array([rate]), np.array([vol])]
     scale = RELATIVE_TOLERANCE * max(spot, spot * ratio)
@@ -45,6 +50,7 @@ def test_cpp_kernels_match_python_reference(
 def test_put_call_parity_and_bounds(
     spot: float, ratio: float, maturity: float, rate: float, vol: float
 ) -> None:
+    """Prices satisfy put-call parity and the no-arbitrage bounds."""
     strike = spot * ratio
     discounted_strike = strike * np.exp(-rate * maturity)
     tolerance = RELATIVE_TOLERANCE * max(spot, strike)
@@ -61,6 +67,7 @@ def test_put_call_parity_and_bounds(
 def test_monotone_and_convex_in_strike(
     spot: float, maturity: float, rate: float, vol: float
 ) -> None:
+    """Calls fall and puts rise with the strike; both are convex."""
     strikes = np.linspace(0.5 * spot, 2.0 * spot, 31)
     tolerance = RELATIVE_TOLERANCE * 2.0 * spot
     calls = bs_call_price(spot, strikes, maturity, rate, vol)
@@ -72,6 +79,7 @@ def test_monotone_and_convex_in_strike(
 
 
 def test_output_shapes() -> None:
+    """Arguments broadcast together; scalar inputs give a 0-d array."""
     grid = bs_call_price(100.0, [[90.0], [110.0]], [0.5, 1.0], 0.05, 0.2)
     assert grid.shape == (2, 2)
     assert grid[1, 0] == bs_call_price(100.0, 110.0, 0.5, 0.05, 0.2)
@@ -81,6 +89,7 @@ def test_output_shapes() -> None:
 
 
 def test_invalid_arguments_raise() -> None:
+    """Invalid or mismatched arguments raise a ValueError naming them."""
     valid: dict[str, npt.ArrayLike] = {
         "spot": 100.0,
         "strike": 100.0,

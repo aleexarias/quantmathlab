@@ -1,0 +1,202 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{hyperref}
+
+\title{Is Attention All You Need for Intraday Forex Trading?\\
+  \large Notes}
+\author{Alejandro Arias Gomez}
+\date{}
+
+\DeclareMathOperator{\softmax}{softmax}
+\DeclareMathOperator{\LN}{LayerNorm}
+
+\begin{document}
+
+\maketitle
+
+\section{Data}
+
+One-minute quotes are aggregated into bars of length $\Delta$. The bar
+starting at $t$ takes the first open, highest high, lowest low and last
+close of the minutes $s \in I_t = [t, t + \Delta)$:
+\begin{equation}
+  O_t = o_{\min I_t}, \qquad
+  H_t = \max_{s \in I_t} h_s, \qquad
+  L_t = \min_{s \in I_t} l_s, \qquad
+  C_t = c_{\max I_t}.
+\end{equation}
+
+The target is whether the next bar closes higher, a flat close counting
+as ``sell'':
+\begin{equation}
+  y_t = \mathbf{1}\{C_{t+1} > C_t\}.
+\end{equation}
+
+\section{Features}
+
+Moving averages, simple and exponential, and standard deviation of the
+close, each over $n \in \{3, 5, 10, 13, 20\}$ bars:
+\begin{equation}
+  \mathrm{SMA}_t^{(n)} = \frac{1}{n} \sum_{i=0}^{n-1} C_{t-i}, \qquad
+  \mathrm{EMA}_t^{(n)} = \alpha C_t + (1 - \alpha)\, \mathrm{EMA}_{t-1}^{(n)},
+  \quad \alpha = \frac{2}{n + 1},
+\end{equation}
+\begin{equation}
+  \sigma_t^{(n)} = \sqrt{\frac{1}{n - 1} \sum_{i=0}^{n-1}
+    \bigl(C_{t-i} - \mathrm{SMA}_t^{(n)}\bigr)^2}.
+\end{equation}
+
+Relative strength index over $n \in \{14, 10\}$, with gains and losses
+averaged with weight $1/n$:
+\begin{equation}
+  \mathrm{RSI}_t = 100 - \frac{100}{1 + G_t / L_t}, \qquad
+  G_t = \tfrac{1}{n} (C_t - C_{t-1})^+ + \bigl(1 - \tfrac{1}{n}\bigr)
+    G_{t-1}.
+\end{equation}
+
+MACD, its signal line and their difference:
+\begin{equation}
+  M_t = \mathrm{EMA}_t^{(12)}(C) - \mathrm{EMA}_t^{(26)}(C), \qquad
+  S_t = \mathrm{EMA}_t^{(9)}(M), \qquad
+  D_t = M_t - S_t.
+\end{equation}
+
+Stochastic oscillator and Williams \%R over 14 bars, with
+$\bar H_t$ and $\bar L_t$ the highest high and lowest low:
+\begin{equation}
+  \%K_t = 100\, \frac{C_t - \bar L_t}{\bar H_t - \bar L_t}, \qquad
+  \%D_t = \frac{1}{3} \sum_{i=0}^{2} \%K_{t-i}, \qquad
+  \%R_t = \%K_t - 100.
+\end{equation}
+
+Bollinger bands over 5 bars, two standard deviations wide:
+\begin{equation}
+  B_t^{\pm} = \mathrm{SMA}_t^{(5)} \pm 2\, \sigma_t^{(5)}.
+\end{equation}
+
+Return and cyclical time, with $h$ the hour and $d$ the weekday:
+\begin{equation}
+  r_t = \frac{C_t}{C_{t-1}} - 1, \qquad
+  \Bigl(\sin \frac{2\pi h}{23}, \cos \frac{2\pi h}{23}\Bigr), \qquad
+  \Bigl(\sin \frac{2\pi d}{6}, \cos \frac{2\pi d}{6}\Bigr).
+\end{equation}
+
+With the open, high, low and close, this gives $m = 35$ features
+$x_t \in \mathbb{R}^{m}$, standardized with the training mean and
+deviation:
+\begin{equation}
+  z_t = \frac{x_t - \mu_{\text{train}}}{\sigma_{\text{train}}}.
+\end{equation}
+
+The model reads the last 96 bars:
+\begin{equation}
+  X_t = (z_{t-95}, \dots, z_t)^\top \in \mathbb{R}^{96 \times m}.
+\end{equation}
+
+\section{Architecture}
+
+A trainable positional encoding $P \in \mathbb{R}^{96 \times m}$ is added
+to the input:
+\begin{equation}
+  E_0 = X_t + P.
+\end{equation}
+
+Each of $H = 4$ heads attends with keys, queries and values of size
+$d_k = 64$:
+\begin{equation}
+  \mathrm{head}_j(E) = \softmax\!\Bigl(\frac{E W_j^Q (E W_j^K)^\top}
+    {\sqrt{d_k}}\Bigr) E W_j^V, \qquad
+  W_j^Q, W_j^K, W_j^V \in \mathbb{R}^{m \times d_k},
+\end{equation}
+\begin{equation}
+  \mathrm{MHA}(E) = \bigl[\mathrm{head}_1(E), \dots,
+    \mathrm{head}_H(E)\bigr] W^O, \qquad
+  W^O \in \mathbb{R}^{H d_k \times m}.
+\end{equation}
+
+The feed-forward layer has 128 units with ReLU:
+\begin{equation}
+  \mathrm{FFN}(E) = \max(0, E W_1 + b_1)\, W_2 + b_2, \qquad
+  W_1 \in \mathbb{R}^{m \times 128}, \; W_2 \in \mathbb{R}^{128 \times m}.
+\end{equation}
+
+Each block $k = 1, \dots, 4$ wraps both in a residual connection and
+layer normalization:
+\begin{equation}
+  E' = \LN\bigl(E_{k-1} + \mathrm{MHA}(E_{k-1})\bigr), \qquad
+  E_k = \LN\bigl(E' + \mathrm{FFN}(E')\bigr).
+\end{equation}
+
+Global average pooling over time and a linear layer give the
+probabilities of ``sell'' and ``buy'':
+\begin{equation}
+  g = \frac{1}{96} \sum_{i=1}^{96} E_{4,i}, \qquad
+  (1 - p_t, p_t) = \softmax(W g + b).
+\end{equation}
+
+Dropout of $0.25$ acts on the attention weights and after the ReLU.
+
+\section{Training}
+
+Cross-entropy over the training windows, minimized with Adam on batches
+of 64; the weights kept are those with the best validation accuracy:
+\begin{equation}
+  \mathcal{L} = -\frac{1}{N} \sum_{t} \bigl[ y_t \log p_t
+    + (1 - y_t) \log (1 - p_t) \bigr].
+\end{equation}
+
+The learning rate rises linearly to $\eta = 10^{-4}$, below the paper's
+$10^{-3}$, over the $S$ steps of the first epoch, and each gradient $g$ is
+clipped to norm 1:
+\begin{equation}
+  \eta_s = \eta \min\Bigl(1, \frac{s}{S}\Bigr), \qquad
+  g \leftarrow g \min\Bigl(1, \frac{1}{\lVert g \rVert}\Bigr).
+\end{equation}
+
+\section{Evaluation}
+
+Accuracy and the area under the ROC curve, from the ranks $R_t$ of the
+probabilities among the $n_1$ positive and $n_0$ negative windows:
+\begin{equation}
+  \mathrm{Acc} = \frac{1}{N} \sum_t \mathbf{1}\{\mathbf{1}\{p_t > 0.5\}
+    = y_t\}, \qquad
+  \mathrm{AUC} = \frac{\sum_{y_t = 1} R_t - n_1 (n_1 + 1)/2}{n_1 n_0}.
+\end{equation}
+
+\section{Trading}
+
+For a band $[a, b]$ around one half, the position is long above it, short
+below it and flat inside:
+\begin{equation}
+  s_t = \mathbf{1}\{p_t > b\} - \mathbf{1}\{p_t < a\}.
+\end{equation}
+
+Capital starts at 100 and compounds the position's return, paying half
+the spread $c$ for each unit of position changed, from $s_0 = 0$ until the
+last position is closed:
+\begin{equation}
+  K_t = K_{t-1} \Bigl(1 + s_t \Bigl(\frac{C_{t+1}}{C_t} - 1\Bigr)
+    - \frac{c}{2 C_t} \lvert s_t - s_{t-1} \rvert\Bigr), \qquad
+  K_0 = 100.
+\end{equation}
+
+Time in the market and the accuracy of the positions taken:
+\begin{equation}
+  \tau = \frac{1}{N} \sum_t \mathbf{1}\{s_t \neq 0\}, \qquad
+  \mathrm{Acc}_s = \frac{\sum_t \mathbf{1}\{s_t \neq 0,\;
+    \mathbf{1}\{s_t > 0\} = y_t\}}{\sum_t \mathbf{1}\{s_t \neq 0\}}.
+\end{equation}
+
+\section{Naive benchmark}
+
+For each hour $h$, predict the direction most frequent at that hour in
+the training years:
+\begin{equation}
+  \hat y_t = \mathbf{1}\Bigl\{\frac{1}{\lvert T_h \rvert}
+    \sum_{u \in T_h} y_u > \tfrac{1}{2}\Bigr\}, \qquad
+  T_h = \{u \in \text{train} : \mathrm{hour}(u) = h\}.
+\end{equation}
+
+\end{document}

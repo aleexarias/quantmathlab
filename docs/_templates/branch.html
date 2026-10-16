@@ -1,9 +1,10 @@
 {# Local and CI builds show the branch they were built from where the hosted
-   docs have the version switcher. It is a button only to share the
-   switcher's styling, so it ignores clicks and keyboard focus.
-   `docs_branch` is set in conf.py. #}
-<div class="version-switcher__container">
+   docs have the version switcher, shortened to 30 characters; hovering
+   shows the full name. The label is a button only to share the switcher's
+   styling, so it ignores clicks and keyboard focus, and the tooltip sits on
+   the container because the button lets the pointer through.
+   `docs_branch` and `docs_branch_label` are set in conf.py. #}
+<div class="version-switcher__container" title="{{ docs_branch }}">
   <button type="button" class="btn version-switcher__button pe-none"
-          tabindex="-1" aria-disabled="true"
-          title="Built from this branch">{{ docs_branch }}</button>
+          tabindex="-1" aria-disabled="true">{{ docs_branch_label }}</button>
 </div>
