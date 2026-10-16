@@ -83,3 +83,23 @@ latexmk -pdf main.tex
 ```
 
 Build artifacts and the PDF are gitignored.
+
+## Long computations
+
+Work too slow to run in every documentation build, such as training a
+model, goes in a script inside a subfolder, for example
+`training/train.py`: only the `.py` files directly in the paper's folder
+are executed. The script writes what the notebook needs to `results/`,
+which is committed, so the notebook only reads it. Such a script may use
+packages the library does not depend on, such as PyTorch; its docstring
+says what to install. Downloaded data and
+anything else that can be regenerated goes to `data/`, which is
+gitignored.
+
+```
+research/<slug>/
+├── training/
+│   └── train.py     # run by hand, never by the documentation build
+├── results/         # committed output of the script, read by the notebook
+└── data/            # gitignored: downloads and regenerable files
+```

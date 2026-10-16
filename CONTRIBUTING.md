@@ -28,8 +28,9 @@ src/quantmathlab/        # the library
 ├── __init__.py          # version
 ├── py.typed             # marks the package as typed
 ├── _typing.py           # FloatArray, BoolArray type aliases
-├── backend/             # dispatch layer for future C++ kernels
+├── backend/             # C++ kernels (_cpp) and NumPy references
 ├── datasets/            # data loading and generation
+├── features/            # indicators and model inputs
 ├── models/              # analytic and semi-analytic pricers
 ├── validation/          # consistency checks and accuracy metrics
 └── viz/                 # plotting functions
@@ -37,12 +38,14 @@ src/quantmathlab/        # the library
 research/<slug>/         # one folder per paper, <slug> = its BibTeX key
 ├── README.rst           # documentation page
 ├── <slug>.py            # notebook (sphinx-gallery format, # %% cells)
-└── latex/main.tex       # notes with the derivations
+├── latex/main.tex       # notes with the derivations
+├── training/            # optional: scripts too slow for the docs build
+└── results/             # optional: their output, read by the notebook
 
 tests/                   # pytest suite
 examples/                # sphinx-gallery examples of the API
 docs/                    # Sphinx sources; docs/_ext/ publishes research/
-cpp/                     # planned C++ kernels (only a README for now)
+cpp/                     # C++ kernel sources and their CMake build
 ```
 
 ## Branch Model
@@ -103,8 +106,8 @@ in `src/quantmathlab/__init__.py` as `__version__`. Everything else derives
 from it, so never hardcode the version anywhere else:
 
 - **Distribution metadata**: `pyproject.toml` declares
-  `dynamic = ["version"]` and `[tool.hatch.version]` reads that line, so
-  wheels and sdists pick it up at build time.
+  `dynamic = ["version"]` and `[tool.scikit-build.metadata.version]`
+  reads that line, so wheels and sdists pick it up at build time.
 - **Documentation**: `docs/conf.py` imports `quantmathlab.__version__`,
   exposing it as the `|release|` and `|version|` substitutions and in the
   footer of every page.
@@ -138,9 +141,12 @@ Releases are made by hand:
 - **Type hints everywhere.** `mypy --strict` must pass. No `Any` except in
   rare cases, justified with a comment.
 - **Docstrings.** numpydoc format on every public function and class: a
-  one-line summary, an extended description if needed, Parameters,
-  Returns and Raises sections, and an Examples section with executable
-  code.
+  one-line summary, an extended description if needed, and Parameters,
+  Returns and Raises sections. An Examples section with executable code
+  is added where it helps; small functions do without one.
+- **No arbitrary defaults.** A parameter gets a default value only when a
+  source justifies it, cited in the docstring. Otherwise the caller
+  chooses it.
 - **Citations.** Papers are never written out; they live in
   `docs/references.bib`. Docstrings cite them with `:footcite:t:` and end
   with a `References` section containing only `.. footbibliography::`;
@@ -186,6 +192,14 @@ note on why they are reasonable.
 5. Add a CHANGELOG entry and document it on its `docs/modules/` page.
 6. Preferably, add a gallery example in
    `examples/<n>_<topic>/plot_<name>.py`.
+
+### A C++ kernel
+
+Follow "Adding a kernel" in `cpp/README.md`: the C++ function, its pybind11
+binding, its signature in `backend/_cpp.pyi`, and a NumPy version in
+`backend/_python.py` that the tests compare it against. The public function
+calling it validates the inputs and follows the steps above. After changing
+C++ files, reinstall the package to recompile them.
 
 ### A research paper
 

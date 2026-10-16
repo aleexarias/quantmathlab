@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling>=1.27"]
-build-backend = "hatchling.build"
+requires = ["scikit-build-core>=0.11", "pybind11>=2.13"]
+build-backend = "scikit_build_core.build"
 
 [project]
 name = "quantmathlab"
@@ -27,6 +27,8 @@ classifiers = [
 
 dependencies = [
     "numpy>=2.0",
+    "pandas>=2.0",
+    "histdata>=1.1",
 ]
 
 [project.optional-dependencies]
@@ -37,6 +39,7 @@ dev = [
     "pytest-cov>=4.1",
     "ruff>=0.1.0",
     "mypy>=1.7",
+    "pandas-stubs>=2.0",
     "pre-commit>=3.5",
 ]
 docs = [
@@ -52,11 +55,15 @@ Documentation = "https://quantmathlab.readthedocs.io/"
 Repository = "https://github.com/aleexarias/quantmathlab"
 Issues = "https://github.com/aleexarias/quantmathlab/issues"
 
-[tool.hatch.version]
-path = "src/quantmathlab/__init__.py"
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+build-dir = "build/{wheel_tag}"
+cmake.source-dir = "cpp"
+wheel.packages = ["src/quantmathlab"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/quantmathlab"]
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.regex"
+input = "src/quantmathlab/__init__.py"
 
 [tool.ruff]
 line-length = 79
@@ -67,6 +74,10 @@ src = ["src"]
 select = ["E", "F", "W", "I", "N", "UP", "B", "A", "C4", "PT"]
 # N803/N806/N813: allow mathematical variable names (S, K, T, etc.)
 ignore = ["N803", "N806", "N813"]
+
+[tool.ruff.lint.pep8-naming]
+# torch.nn.functional is conventionally imported as F.
+extend-ignore-names = ["F"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["quantmathlab"]
@@ -82,6 +93,11 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 strict = true
+
+# histdata ships without type information.
+[[tool.mypy.overrides]]
+module = "histdata.*"
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "7.0"

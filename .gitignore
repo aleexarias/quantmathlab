@@ -132,6 +132,9 @@ dmypy.json
 *.swp
 *.swo
 
+# Market data downloaded by the research notebooks
+research/*/data/
+
 # LaTeX build artifacts of the research notes
 research/*/latex/main.pdf
 *.aux

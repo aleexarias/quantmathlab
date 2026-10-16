@@ -38,8 +38,9 @@ aleexariasg@gmail.com.
 
 .. admonition:: Latest update
 
-   :doc:`Placeholder Paper <research/placeholder/index>`, the testing paper
-   used to set up the research workflow.
+   :doc:`Is attention all you need for intraday Forex trading? <research/gradzki+wojcik_2023_attention/index>`,
+   can the Transformer architecture predict short-term movements of foreign
+   exchange rates?
 
 .. toctree::
    :maxdepth: 1
@@ -69,6 +70,8 @@ family of methods:
      - Analytic and semi-analytic pricers
    * - :doc:`modules/datasets`
      - Data loading and generation
+   * - :doc:`modules/features`
+     - Indicators and model inputs
    * - :doc:`modules/validation`
      - Quality assessment
    * - ``quantmathlab.viz``

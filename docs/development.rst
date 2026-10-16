@@ -60,6 +60,11 @@ with the development and documentation dependencies:
    cd quantmathlab
    pip install -e ".[dev,docs]"
 
+Installing compiles the package's C++ kernels, so you also need a C++17
+compiler: GCC or Clang on Linux, the Xcode Command Line Tools on macOS, or
+Visual Studio's MSVC on Windows. CMake and pybind11 are fetched
+automatically during the build.
+
 Building the documentation also needs LaTeX with ``latexmk``; see
 :doc:`installation` for the command on each platform.
 
@@ -259,8 +264,8 @@ The version is single-sourced in ``src/quantmathlab/__init__.py`` as
 ``__version__`` (currently |release|). Everything else derives from it:
 
 - **Distribution metadata**: ``pyproject.toml`` declares
-  ``dynamic = ["version"]`` and ``[tool.hatch.version]`` reads that line,
-  so wheels and sdists pick it up at build time.
+  ``dynamic = ["version"]`` and ``[tool.scikit-build.metadata.version]``
+  reads that line, so wheels and sdists pick it up at build time.
 - **Documentation**: ``docs/conf.py`` imports
   ``quantmathlab.__version__``, which Sphinx exposes as the ``|release|``
   and ``|version|`` substitutions and renders into the footer of every
@@ -300,7 +305,8 @@ Profile hot paths before optimizing:
 
    python -m cProfile -s cumtime -m pytest tests/test_<module>.py
 
-For C++ acceleration plans, see `cpp/README.md`.
+The C++ kernels, and how to add one, are described in
+``cpp/README.md``.
 
 Questions?
 ----------

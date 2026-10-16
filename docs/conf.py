@@ -6,8 +6,9 @@ import sys
 
 from sphinx.application import Sphinx
 
-# Add source directory and local extensions to path
-sys.path.insert(0, os.path.abspath("../src"))
+# The package itself is not added to the path: it contains compiled C++
+# kernels that only exist in an installed copy, so the documentation is
+# built against the installed package.
 sys.path.insert(0, os.path.abspath("_ext"))
 
 from quantmathlab import __version__  # noqa: E402
@@ -36,6 +37,11 @@ def _docs_branch() -> str:
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
     return result.stdout.strip()
+
+
+def _branch_label(branch: str) -> str:
+    """Shorten a branch name of 30 or more characters to fit the navbar."""
+    return branch if len(branch) < 30 else branch[:27] + "..."
 
 
 docs_branch = _docs_branch()
@@ -128,7 +134,10 @@ if on_read_the_docs:
         "show_version_warning_banner": True,
     }
 
-html_context = {"docs_branch": docs_branch}
+html_context = {
+    "docs_branch": docs_branch,
+    "docs_branch_label": _branch_label(docs_branch),
+}
 
 html_static_path = ["_static"]
 # Follows the browser's colour scheme, so it stays visible on light and dark
