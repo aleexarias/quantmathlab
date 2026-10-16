@@ -27,6 +27,8 @@ classifiers = [
 
 dependencies = [
     "numpy>=2.0",
+    "pandas>=2.0",
+    "histdata>=1.1",
 ]
 
 [project.optional-dependencies]
@@ -37,6 +39,7 @@ dev = [
     "pytest-cov>=4.1",
     "ruff>=0.1.0",
     "mypy>=1.7",
+    "pandas-stubs>=2.0",
     "pre-commit>=3.5",
 ]
 docs = [
@@ -86,6 +89,11 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 strict = true
+
+# histdata ships without type information.
+[[tool.mypy.overrides]]
+module = "histdata.*"
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "7.0"

@@ -39,6 +39,11 @@ def _docs_branch() -> str:
     return result.stdout.strip()
 
 
+def _branch_label(branch: str) -> str:
+    """Shorten a branch name of 30 or more characters to fit the navbar."""
+    return branch if len(branch) < 30 else branch[:27] + "..."
+
+
 docs_branch = _docs_branch()
 # Read the Docs hosts every branch, so only there can the version switcher
 # link between them; elsewhere the navbar just names the branch.
@@ -129,7 +134,10 @@ if on_read_the_docs:
         "show_version_warning_banner": True,
     }
 
-html_context = {"docs_branch": docs_branch}
+html_context = {
+    "docs_branch": docs_branch,
+    "docs_branch_label": _branch_label(docs_branch),
+}
 
 html_static_path = ["_static"]
 # Follows the browser's colour scheme, so it stays visible on light and dark

@@ -6,6 +6,8 @@ Requirements
 
 - Python 3.12+
 - NumPy >= 2.0
+- pandas >= 2.0
+- histdata >= 1.1, to download quotes from histdata.com
 - A C++17 compiler, to build the C++ kernels
 
 Installation from Source

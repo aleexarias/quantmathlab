@@ -34,8 +34,9 @@ you think I should take on next. Send them my way at
 
 > [!NOTE]
 > **Latest update:**
-> [Placeholder Paper](https://github.com/aleexarias/quantmathlab/tree/main/research/placeholder),
-> the testing paper used to set up the research workflow.
+> [Is attention all you need for intraday Forex trading?](https://github.com/aleexarias/quantmathlab/tree/main/research/gradzki+wojcik_2023_attention),
+> can the Transformer architecture predict short-term movements of foreign
+> exchange rates?
 
 ## Repository Layout
 
@@ -54,6 +55,7 @@ family of methods:
 | --- | --- |
 | `quantmathlab.models` | Analytic and semi-analytic pricers |
 | `quantmathlab.datasets` | Data loading and generation |
+| `quantmathlab.features` | Indicators and model inputs |
 | `quantmathlab.validation` | Quality assessment |
 | `quantmathlab.viz` | Plotting helpers |
 | `quantmathlab.backend` | Kernel dispatch |
